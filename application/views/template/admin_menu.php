@@ -71,7 +71,7 @@
 			</a>              
 		</li>
 		<li>                     
-			<a class="" href="#">
+			<a class="" href="<?PHP echo site_url(); ?>/user_home/leader_board">
 				<i class="fa fa-graduation-cap" aria-hidden="true"></i>
 				<span>Leader Board</span>
 			</a>              

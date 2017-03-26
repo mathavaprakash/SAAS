@@ -99,6 +99,14 @@ class Login_Database extends CI_Model
 		}
 		else
 		{
+			$letter=substr($mail_id,0,1);
+			$file_name=  'assets/profile_pics/letters/' . $letter . '.png';
+			$exists=file_exists($file_name);
+			if($exists)
+			{
+				return $file_name;
+			}
+			else
 			return  'assets/profile_pics/pic.png';
 		}
 		

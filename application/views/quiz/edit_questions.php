@@ -91,7 +91,18 @@
 											</label>
 										</div>
 									</div>
+									<div class="row col-sm-offset-1 col-sm-10 ans-explain" >
+											<a class="accordion-toggle ans-explain-label" data-toggle="collapse" data-parent="#accordion1" href="#exp<?= $q['question_id']; ?>">Explanation (Optional)</a>
+											<div id="exp<?= $q['question_id']; ?>" class="form-group panel-collapse collapse"  style="border-style:none">
+												<div class="col-sm-offset-1 col-sm-11">
+													<textarea class="form-control ckeditor" name="explanation<?= $q['question_id']; ?>" placeholder="Explain here (optional)" rows="3">
+														<?= $q['explanation']; ?>
+													</textarea>
+												</div>
+											</div>
+										</div>
 								</div>
+								
 							<?PHP endforeach; ?>
 							<button class="btn btn-primary btn-lg btn-block" type="submit">Edit Questions</button>
 						<?= form_close(); ?>
@@ -102,4 +113,6 @@
 	</section>
 </section>
       <!--main content end-->
+	  <script type="text/javascript" src="<?= base_url(); ?>assets/ckeditor/ckeditor.js"></script>
+
 <?PHP $this->load->view('template/footer'); ?>

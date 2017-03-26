@@ -22,9 +22,27 @@ class Model_Home extends CI_Model
 			return NULL;
 		}
 	}
+	public function my_chapter($id)
+	{
+		$id=$this->security->xss_clean($id);
+		$condition="mail_id="  . $this->db->escape($id) . " ORDER BY `sub_id` DESC";
+		$this->db->select('*');
+		$this->db->from('sub_category');
+		$this->db->where($condition);
+		$query=$this->db->get();
+		if($query->num_rows()>0)
+		{
+			return $query->result_array();
+		}
+		else
+		{
+			return FALSE;
+		}
+		
+	}
 	public function sub_category($id)
 	{
-		$sql=$this->db->query("Select * from sub_category where category_id=$id ORDER BY `sub_id` DESC");
+		$sql=$this->db->query("Select * from sub_category where category_id=$id and status=1 ORDER BY `sub_id` DESC");
 		return $sql->result_array();
 	}
 	public function sub_category1($id)
@@ -32,9 +50,14 @@ class Model_Home extends CI_Model
 		$sql=$this->db->query("Select * from sub_category where category_id=$id ORDER BY `sub_id` DESC LIMIT 6");
 		return $sql->result_array();
 	}
+	public function pending_chapter()
+	{
+		$sql=$this->db->query("Select * from sub_category where status=0 ORDER BY `sub_id` DESC");
+		return $sql->result_array();
+	}
 	public function sub_category2()
 	{
-		$sql=$this->db->query("Select * from sub_category ORDER BY `sub_id` DESC LIMIT 3");
+		$sql=$this->db->query("Select * from sub_category  where status=1 ORDER BY `sub_id` DESC LIMIT 3");
 		return $sql->result_array();
 	}
 	public function content($sub_id)
@@ -71,7 +94,7 @@ class Model_Home extends CI_Model
 	public function add_sub_category($data)
 	{
 		$this->db->insert('sub_category',$data);
-		if($this->db->affected_rows()>0)
+		if($this->db->affected_rows()==1)
 		{
 			return TRUE;
 		}
@@ -157,5 +180,95 @@ class Model_Home extends CI_Model
 			return TRUE;
 		else
 			return FALSE;
+	}
+	
+	public function marks($mail_id)
+	{
+		//$arr1=[0];
+		$sql=$this->db->query("Select * from test where status=2");
+		$ms=$sql->result_array();
+		$arr=array();
+		$arr[]=0;
+		if(isset($ms))
+		{
+			foreach($ms as $mark)
+			{
+				if($mark['mail_id']==$mail_id)
+				{
+					$quest=$this->model_quiz->get_test_details($mark['test_id']);
+					
+					$nos=$quest['no_of_questions'];
+					
+					if($nos!=0) 
+					$arr[]=$mark['marks']/$nos;
+				}
+				
+			}
+		
+				
+		}
+		return $arr;
+
+	}
+	public function dates($mail_id,$lbls)
+	{
+		//$arr1=[0];
+		
+		$category=array();
+		$category= $this->model_home->category();
+		$sql=$this->db->query("Select * from test where status=2");
+		$ms=$sql->result_array();
+		$darr=array();
+		$darr[]="";
+		if(isset($ms))
+		{
+			foreach($ms as $mark)
+			{
+				if($mark['mail_id']==$mail_id)
+				{
+					//$arr[]=$mark['marks'];
+					$dt=strtotime($mark['start_date']);
+					$dat=date('d-m-y',$dt);
+					
+					$tid=$mark['test_id'];
+					$sql1=$this->db->query("Select * from online_test where test_id=$tid");
+					$ids=$sql1->result_array();
+					if(isset($ids))
+					{
+						foreach($category as $cat1)
+						{
+							$ca=$cat1['category_id'];
+							foreach($ids as $cat)
+							{
+								if($cat['category_id']==$ca)
+								{
+								$c=$lbls[$ca-1]." - ".$cat['title'];
+								$darr[]=$dat." ".$c;
+								}
+							}	
+						}
+					}
+					
+					
+					
+				}
+				
+			}
+				
+		}
+		return $darr;
+
+	}
+	public function get_discussions($sub_id)
+	{
+		//if($this->uri->segment(1)=='admin_home')  $sub_id=$this->uri->segment(3);
+		//else $sub_id=$this->uri->segment(3);
+		$sql=$this->db->query("Select * from discussions where sub_id=$sub_id and state=1 ORDER BY `creation_date` DESC");
+		return $sql->result_array();
+	}
+	public function get_comments($did)
+	{
+		$sql=$this->db->query("Select * from comments where discussion_id=$did and state=1");
+		return $sql->result_array();
 	}
 }

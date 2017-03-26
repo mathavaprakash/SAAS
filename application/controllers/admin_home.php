@@ -8,6 +8,7 @@ class Admin_Home extends CI_Controller
 		parent::__construct();
 		$this->load->model('login_database');
 		$this->load->model('model_home');
+		$this->load->model('model_qbank');
 	}
 	public function index()
 	{
@@ -32,7 +33,7 @@ class Admin_Home extends CI_Controller
 	}
 	public function read_view()
 	{
-		$this->load->view('admin/read_subject');
+		$this->load->view('admin/read');
 	}
 	public function online_view()
 	{

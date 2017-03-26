@@ -78,7 +78,7 @@
 			</a>
 		</li>
 		<li>                     
-			<a class="" href="#">
+			<a class="" href="<?PHP echo site_url(); ?>/progress/">
 				<i class="fa fa-line-chart" aria-hidden="true"></i>
 				<span>Progress</span>
 			</a>              

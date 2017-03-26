@@ -37,6 +37,7 @@ class Quiz extends CI_Controller
 	
 	public function add_test()
 	{
+		
 		$rule = $this->config->item('new_test');
 		$this->form_validation->set_rules($rule);
 		if($this->form_validation->run())
@@ -144,6 +145,24 @@ class Quiz extends CI_Controller
 			redirect("quiz/detail_view/$test_id");
 		}
 	}
+	public function approve_test($test_id)
+	{
+		$data=array('active'=>1);
+		$result=$this->model_quiz->update_test($test_id,$data);
+		if($result)
+		{
+			$test=$this->model_quiz->get_test_details($test_id);
+			$result=$this->model_quiz->add_points($test['mail_id'],500);
+			
+			$this->session->set_flashdata("message","This test will be public.");
+			redirect("quiz/detail_view/$test_id");
+		}
+		else
+		{
+			$this->session->set_flashdata("message","Error Occured. Try Again");
+			redirect("quiz/detail_view/$test_id");
+		}
+	}
 	public function close_test($test_id)
 	{
 		$data=array('active'=>3);
@@ -204,6 +223,7 @@ class Quiz extends CI_Controller
 				'option_b'=>$this->input->post('option_b'.$key),
 				'option_c'=>$this->input->post('option_c'.$key),
 				'option_d'=>$this->input->post('option_d'.$key),
+				'explanation'=>$this->input->post('explanation'.$key),
 				'answer'=>$this->input->post('answer'.$key)
 			);			
 			$this->model_quiz->update_questions($key,$data);

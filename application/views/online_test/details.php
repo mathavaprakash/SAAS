@@ -90,9 +90,22 @@
 	{
 		redirect('user_home/error');
 	}
+	$marks2=$this->model_quiz->get_marks($id,$mail_id);
+	
 	$sno=0;
 	$prev=0;
+	
+	$student=$this->model_quiz->get_student_details($test['mail_id']);
+	$sname=$student['first_name'] . '_' . $student['last_name'];
+	$sname=humanize($sname);
+	$stud_id=$this->login_database->encryptor('encrypt',$test['mail_id']);
+	$my_test=($test['mail_id']==$mail_id)?'yes':'no';											
 ?> 
+<script src="<?PHP echo base_url(); ?>dist/Chart.bundle.js"></script>
+<script src="<?PHP echo base_url(); ?>utils.js"></script>
+<!--external css-->
+	<link href="<?PHP echo base_url(); ?>css/chart-style.css" rel="stylesheet">
+
 <!--main Title bar-->
 
 <script type="text/javascript">
@@ -134,87 +147,13 @@ function Tick() {
 		</div>
 	</div>
 </div>
-<?PHP if($test_status=='Finished'): 
 
-
-?>
-
-<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="1view_answer" class="modal fade">
-	<div class="modal-dialog" style="width:80% ">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
-				<h4 class="modal-title"><?= $test['title']; ?></h4>
-			</div>
-			<div class="modal-body">
-					
-					<div style="padding:10px; letter-spacing: 1px;">
-						<?PHP $i=0; foreach ($questions as $q): 
-							$correct_answer=$q['answer'];
-							$qid=$q['question_id'];
-							$icon=array(
-								'a'=>'&nbsp;&nbsp;&nbsp;',
-								'b'=>'&nbsp;&nbsp;&nbsp;',
-								'c'=>'&nbsp;&nbsp;&nbsp;',
-								'd'=>'&nbsp;&nbsp;&nbsp;'
-							);
-							$ans_class=array(
-								'a'=>'',
-								'b'=>'',
-								'c'=>'',
-								'd'=>''
-							);
-							$ans_class[$correct_answer]='correct';
-							if(isset($ticket_answer[$qid]))
-							{
-								$stud_answer=$ticket_answer["$qid"];
-								if($correct_answer==$stud_answer)
-								{
-									$icon[$stud_answer]='<i class="fa fa-check correct" aria-hidden="true"></i>';
-									
-								}
-								else
-								{
-									$icon[$stud_answer]='<i class="fa fa-close wrong" aria-hidden="true"></i>';
-								}
-								
-							}
-							
-						?>
-							<div class="col-lg-12">
-								<?= $i=$i+1; ?> ) <?= $q['question']; ?>
-							</div>
-							<div class="row col-sm-offset-1" >
-								<div class="col-sm-5 <?= $ans_class['a']; ?>">
-									<?= $icon['a']; ?>
-									A) <?= $q['option_a']; ?>
-								</div>
-								<div class="col-sm-5 <?= $ans_class['b']; ?>">
-									<?= $icon['b']; ?>
-									B) <?= $q['option_b']; ?>
-								</div>
-								<div class="col-sm-5 <?= $ans_class['c']; ?>">
-									<?= $icon['c']; ?>
-									C) <?= $q['option_c']; ?>
-								</div>
-								<div class="col-sm-5 <?= $ans_class['d']; ?>">
-									<?= $icon['d']; ?>
-									D) <?= $q['option_d']; ?>
-								</div>
-							</div>
-							</br>
-						<?PHP endforeach; ?>
-					</div>
-			</div>
-		</div>
-	</div>
-</div>
-<?PHP endif; ?>
 <section id="main-content">
 	<section class="wrapper">
 		<div class="row">
 			<div class="col-lg-12">
-				<h3 class="page-header"><i class="fa fa fa-bars"></i> Quiz</h3>
+				<div class="page-header"><i class="fa fa-desktop" aria-hidden="true"></i>
+				 Online Test</div>
 				<?PHP $this->load->view('template/alert'); ?>
 			</div>
 		</div>
@@ -244,10 +183,13 @@ function Tick() {
 						</div>
 						<div class="col-md-8">
 							<div class="test-header">
-								<?= $test['title']; ?>
+								<?= $test['title'];?>
 							</div>
 							<div class="test-category">
 								<?= $this->model_quiz->id_to_cat($test['category_id']); ?>
+							</div>
+							<div class="test-category">
+								Posted By : <?= anchor("user_home/view_student_profile/$stud_id",$sname); ?>
 							</div>
 						</div>
 						<div class="col-md-2">
@@ -285,22 +227,30 @@ function Tick() {
 						
 						<div class="col-sm-offset-1 col-md-5 row">
 							<div class="test-button">
-								<?PHP if($test_status=='Ready'): ?>
-									<button class="btn btn-danger btn-lg btn-block" disabled>Test will Available Soon.</button>
-								<?PHP elseif($test_status=='Active'  && !$attend): ?>
-									<a class="btn btn-danger btn-lg btn-block"  data-toggle="modal" href="#instructions">Take Test</a>
-								<?PHP elseif($test_status=='Active'  && $attend): ?>
-									<button class="btn btn-danger btn-lg btn-block" disabled>Answers will Available Soon.</button>
-								<?PHP elseif($test_status=='Finished'): ?>
-									<a class="btn btn-primary btn-lg btn-block accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#view_answer">View Answers</a>
-									
+							
+								<?PHP if($my_test=='no'): ?>
+									<?PHP if($test_status=='Ready'): ?>
+										<button class="btn btn-danger btn-lg btn-block" disabled>Test will Available Soon.</button>
+									<?PHP elseif($test_status=='Active'  && !$attend): ?>
+										<a class="btn btn-danger btn-lg btn-block"  data-toggle="modal" href="#instructions">Take Test</a>
+									<?PHP elseif($test_status=='Active'  && $attend): ?>
+										<button class="btn btn-danger btn-lg btn-block" disabled>Answers will Available Soon.</button>
+									<?PHP elseif($test_status=='Finished'): ?>
+										<a class="btn btn-primary btn-lg btn-block accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#view_answer">View Answers</a>
+										
+									<?PHP endif; ?>
+								<?PHP else: ?>
+									<a class="btn btn-primary btn-lg btn-block accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#view_answer">Review Questions</a>
+										
 								<?PHP endif; ?>
 							</div>
 						</div>
 						<div class="col-md-3 row">
 							<div class="test-quiz-takers">
-								<i class="fa fa fa-trophy"></i>
-								Your Rank&nbsp; :&nbsp; <?= $my_rank['rank']; ?>
+								<?PHP if($my_test=='no'): ?>
+									<i class="fa fa fa-trophy"></i>
+									Your Rank&nbsp; :&nbsp; <?= $my_rank['rank']; ?>
+								<?PHP endif; ?>
 							</div>
 							<div class="test-quiz-takers">
 								<i class="fa fa fa-users"></i>
@@ -311,7 +261,8 @@ function Tick() {
 				</div>
 			</div>
 		</div>
-		<?PHP if($attend): ?>
+		<?PHP if($my_test=='yes' OR $attend OR $test_status=='Finished'): ?>
+
 			<div class="row quiz-containerr " id="accordion">
 			
 				<div class="category-containerr col-md-offset-1 col-md-10 " style="padding-bottom:0px;">
@@ -325,7 +276,8 @@ function Tick() {
 							</div>
 							<div class="row ">
 								<div style="padding:10px; letter-spacing: 1px;" id="accordion1">
-									<?PHP $i=0; foreach ($questions as $q): 
+									<?PHP $i=0; $r=0; $w=0; 
+									foreach ($questions as $q): 
 										$correct_answer=$q['answer'];
 										$qid=$q['question_id'];
 										$icon=array(
@@ -347,11 +299,12 @@ function Tick() {
 											if($correct_answer==$stud_answer)
 											{
 												$icon[$stud_answer]='<i class="fa fa-check correct" aria-hidden="true"></i>';
-												
+												$r++;
 											}
 											else
 											{
 												$icon[$stud_answer]='<i class="fa fa-close wrong" aria-hidden="true"></i>';
+												$w++;
 											}
 											
 										}
@@ -393,13 +346,24 @@ function Tick() {
 												</div>
 											</div>
 										<?PHP endif; ?>
-									<?PHP endforeach; ?>
+									<?PHP endforeach; 
+									$nt=$i-($r+$w);
+									//echo "Right ".$r."Wr : ".$w."not: ".$nt; 
+									
+									?>
+									
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
+
+<?PHP else: ?>
+	<div class="row"> &nbsp;</div>
+<?PHP endif; ?>
+		<?PHP if($attend): ?>
+			
 			<div class="row">
 				<div class="col-xs-12">
 					<div class="test-container1">
@@ -486,22 +450,67 @@ function Tick() {
 			
 		<?PHP endif; ?>
 		
-		
+	
 		<div class="row">
-			<div class="col-lg-7">
+			<?PHP if($my_test=='no'): ?>
+			<div class="col-lg-3">
+				<section class="panel">
+					<header class="panel-heading tab-bg-primary ">
+						<div class="col-lg-offset-5" style="color:#fff;">Top Score</div>
+					</header>
+					<div class="panel-body">
+						<div class="col-lg-12">
+							
+										<?php
+										$noq=$test['no_of_questions'];
+									
+										$my=$marks2['my'];
+										$top=$marks2['top'];
+										
+										$my_mark=array($my,0);
+										$top_mark=array($top);
+										if($my_rank['rank']!=0 ){
+										?>
+							<div style="width:100%;">
+								<canvas id="canvas" width="100" height="173"></canvas>
+							</div>
+						<?php 
+								}
+								else{
+							?>
+							<br/>
+							You didn't attend the test.
+							<br/>
+							<?php
+								}	
+							?>
+						</div>
+						
+					</div>
+								
+				</section>
+			</div>
+			<?PHP endif; ?>
+			<?PHP if($my_test=='no' OR $attend): ?>
+			<div class="col-lg-4">
 				<section class="panel">
 					<header class="panel-heading tab-bg-primary ">
 						<div class="col-lg-offset-5" style="color:#fff;">Stats</div>
 					</header>
 					<div class="panel-body">
-						<div class="col-lg-12">
-							
+						
+							<div class="col-lg-12">
+							<div id="canvas-holder" style="width:100%; ">
+					   
+						<canvas id="chart-area" width="100" height="100" />
 						</div>
+						</div>
+						
 					</div>
 								
 				</section>
 			</div>
-			
+			<?PHP endif; ?>
 			<div class="col-lg-5">
 			<?PHP if(isset($rank_list)): ?>
 				<section class="panel">
@@ -509,6 +518,8 @@ function Tick() {
 						<div class="col-lg-offset-5" style="color:#fff;">Rank List</div>
 					</header>
 					<div class="panel-body">
+						<div class="row scrollbar-container">
+							
 						<table class="table table-striped table-advance table-hover">
 							<thead>
 								<tr>
@@ -518,14 +529,15 @@ function Tick() {
 								</tr>
 							</thead>		
 							<tbody>
-								<?PHP for($i=0;$i<10;$i++): ?>
-									<?PHP	if(isset($rank_list[$i])): 
-										$rank=$rank_list[$i];
+								<?PHP $i=0; foreach($rank_list as $rank): ?>
+									<?PHP	//if(isset($rank_list[$i])): 
+										//$rank=$rank_list[$i];
 										$student=$this->model_quiz->get_student_details($rank['mail_id']);
 										$sname=$student['first_name'] . '_' . $student['last_name'];
 										$sname=humanize($sname);
 										$stud_id=$this->login_database->encryptor('encrypt',$rank['mail_id']);
-												
+										if($i==0) $top=$sname;
+										$i++;
 									?>
 										<tr <?PHP if($rank['mail_id']==$mail_id) echo ' class="danger"';?>>
 											<td> <?= anchor("user_home/view_student_profile/$stud_id",$sname); ?></td>
@@ -533,10 +545,11 @@ function Tick() {
 											<td><?= $rank['rank']; ?></td>
 										</tr>
 										
-									<?PHP endif;?> 
-								<?PHP endfor; ?>
+									<?PHP //endif;?> 
+								<?PHP endforeach; ?>
 							</tbody>
 						</table>
+						</div>
 						<?PHP if($my_rank['rank']>0): ?>
 							<div class="rank-display">
 								Your Rank is <?= $my_rank['rank']; ?>
@@ -551,7 +564,123 @@ function Tick() {
 			<?PHP endif; ?>
 			</div>
 		</div>
+	
 	</section>
 </section>
+
+<script>
+var r=<?php echo json_encode($r);?>;
+var w=<?php echo json_encode($w);?>;
+var nt=<?php echo json_encode($nt);?>;
+//bar
+        var chartData = {
+            labels: ["Score"],
+            datasets: [ {
+                type: 'bar',
+                label: <?php echo json_encode($top); ?>,
+                backgroundColor: window.chartColors.clr3,
+                data: <?php echo json_encode($top_mark); ?>,
+                borderColor: 'white',
+                borderWidth: 2
+            }, {
+                type: 'bar',
+                label: <?php echo json_encode($name); ?>,
+                backgroundColor: window.chartColors.clr1,
+                data: <?php echo json_encode($my_mark); ?>,
+				borderColor: 'white',
+                borderWidth: 2
+            }]
+
+        };
+		
+		//pie
+		var config = {
+		type: 'pie',
+		data: {
+			datasets: [{
+				data: [r,w,nt] ,
+				backgroundColor: [
+					window.chartColors.green,
+					window.chartColors.red,
+					window.chartColors.orange,
+					
+				],
+			}],
+			labels: ["Correct","Wrong","Not Attended"]	
+		},
+		options: {
+			responsive: true,
+			legend: {
+				display: true
+			},
+			tooltips: {
+				enabled: true,
+			}
+		}
+	};
+	
+		
+		Chart.plugins.register({
+            afterDatasetsDraw: function(chartInstance, easing) {
+                // To only draw at the end of animation, check for easing === 1
+                var ctx = chartInstance.chart.ctx;
+
+                chartInstance.data.datasets.forEach(function (dataset, i) {
+                    var meta = chartInstance.getDatasetMeta(i);
+                    if (!meta.hidden) {
+                        meta.data.forEach(function(element, index) {
+                            // Draw the text in black, with the specified font
+                            ctx.fillStyle = 'rgb(0, 0, 0)';
+
+                            var fontSize = 16;
+                            var fontStyle = 'normal';
+                            var fontFamily = 'Helvetica Neue';
+                            ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+
+                            // Just naively convert to string for now
+                            var dataString = dataset.data[index].toString();
+
+                            // Make sure alignment settings are correct
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+
+                            var padding = -20;
+                            var position = element.tooltipPosition();
+                            ctx.fillText(dataString, position.x, position.y - (fontSize /2) - padding);
+                        });
+                    }
+                });
+            }
+        });
+	
+		
+        window.onload = function() {
+			
+			//pie
+			var ctx1 = document.getElementById("chart-area").getContext("2d");
+			window.myPie = new Chart(ctx1, config);
+			//bar
+            var ctx = document.getElementById("canvas").getContext("2d");
+            window.myMixedChart = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Comparison with Top scorer'
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: true
+                    }
+                }
+            });
+        };
+
+        
+    </script>
+ 
+
       <!--main content end-->
 <?PHP $this->load->view('template/footer'); ?>

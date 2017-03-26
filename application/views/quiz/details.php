@@ -8,7 +8,7 @@
 	}
 	else
 	{
-		redirect('admin_home/logout');
+		redirect('user_home/error');
 	}
 	$user=$this->login_database->read_user_info($mail_id);
 	$this->load->helper('inflector');
@@ -21,12 +21,16 @@
 	$id=$this->uri->segment(3);
 	if(! isset($id))
 	{
-		redirect('admin_home/logout');
+		redirect('user_home/error');
 	}
 	$test= $this->model_quiz->get_test_details($id);
 	$questions=NULL;
 	$questions=$this->model_quiz->get_questions($id);
 	$status=$this->model_quiz->get_test_status($id);
+	$student=$this->model_quiz->get_student_details($test['mail_id']);
+	$sname=$student['first_name'] . '_' . $student['last_name'];
+	$sname=humanize($sname);
+	$stud_id=$this->login_database->encryptor('encrypt',$test['mail_id']);
 ?> 
 <!--main Title bar-->
 <div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="edit_title" class="modal fade">
@@ -172,6 +176,10 @@
 														<td><?= $this->model_quiz->id_to_cat($test['category_id']); ?></td>
 													</tr>
 													<tr>
+														<td>Created BY</td>
+														<td> <?= anchor("user_home/view_student_profile/$stud_id",$sname); ?></td>
+													</tr>
+													<tr>
 														<td>Start Time</td>
 														<td><?= $this->model_quiz->cdate($test['start_date']); ?> 
 															&nbsp; 
@@ -209,11 +217,15 @@
 														<td>Status</td>
 														<td><?= $status; ?>
 															&nbsp; 
+															<?PHP if($status=='Pending'): ?>
+																<a href="<?= site_url(); ?>/quiz/approve_test/<?= $id ?>" data-toggle="modal">Approve Test
+																<i class="fa fa-pencil" aria-hidden="true"></i></a>
+															<?PHP endif; ?>
 															<?PHP if($status=='Ready' OR $status=='Active' OR $status=='Finished'): ?>
 																<a href="<?= site_url(); ?>/quiz/close_test/<?= $id ?>" data-toggle="modal">Close Test
 																<i class="fa fa-pencil" aria-hidden="true"></i></a>
 															<?PHP endif; ?>
-															<?PHP if($status=='Ready' OR $status=='Error' OR $status=='Closed' OR $status=='Incomplete'): ?>
+															<?PHP if($status=='Ready' OR $status=='Pending' OR $status=='Error' OR $status=='Closed' OR $status=='Incomplete'): ?>
 																<a href="<?= site_url(); ?>/quiz/delete_test/<?= $id ?>" data-toggle="modal">Delete Test
 																<i class="fa fa-pencil" aria-hidden="true"></i></a>
 															<?PHP endif; ?>
@@ -233,34 +245,59 @@
 											</div>
 										</div>
 									<?PHP else: ?>
-										
-										<div class="row">
-											<section class="panel">	
-												<div class="panel-body">
-													<?PHP $i=0; foreach ($questions as $q): ?>
-														<div class="col-lg-12">
-															<?= $i=$i+1; ?> ) <?= $q['question']; ?>
+										<div class="row quiz-containerr ">
+			
+											<div class="category-containerr col-md-offset-1 col-md-10 " style="padding-bottom:0px;">
+											  
+												<div class="">
+													<div style="border:none;">
+														
+														<div class="row ">
+															<div style="padding:2px; letter-spacing: 1px;" id="accordion1">
+																<?PHP $i=0; foreach ($questions as $q): ?>
+																	<div class="ans-question">
+																		
+																		<div class="col-xs-2 col-md-1">
+																			<?= $i=$i+1; ?> )
+																		</div>
+																		<div class="col-xs-10 col-md-11">
+																			<?= $q['question']; ?>
+																		</div>
+																	</div>
+																	<div class="row col-sm-offset-1" >
+																		<div class="row col-sm-12 ans-option" >
+																			<div class="col-sm-6 <?PHP if($q['answer']=='a') echo ' correct'; ?>">
+																				<div class="col-xs-11">A) <?= $q['option_a']; ?></div>												
+																			</div>
+																			<div class="col-sm-6 <?PHP if($q['answer']=='b') echo ' correct'; ?>">
+																				<div class="col-xs-11">B) <?= $q['option_b']; ?></div>												
+																			</div>
+																			<div class="col-sm-6 <?PHP if($q['answer']=='c') echo ' correct'; ?>">
+																				<div class="col-xs-11">C) <?= $q['option_c']; ?></div>												
+																			</div>
+																			<div class="col-sm-6 <?PHP if($q['answer']=='d') echo ' correct'; ?>">
+																				<div class="col-xs-11">D) <?= $q['option_d']; ?></div>												
+																			</div>
+																		</div>
+																	</div>
+																	<?PHP if(($q['explanation']!=NULL)): ?>
+																		<div class="col-sm-offset-1 ans-explain" >
+																			<a class="accordion-toggle ans-explain-label" data-toggle="collapse" data-parent="#accordion1" href="#<?= $q['question_id']; ?>">Explanation</a>
+																	
+																			<div id="<?= $q['question_id']; ?>" class="panel-collapse collapse">
+																				<?= $q['explanation']; ?>
+																			</div>
+																		</div>
+																	<?PHP endif; ?>
+																<?PHP endforeach; ?>
+																
+															</div>
 														</div>
-														<div class="row col-sm-offset-1" >
-															<div class="col-sm-5 <?PHP if($q['answer']=='a') echo ' correct'; ?>">
-																A) <?= $q['option_a']; ?>
-															</div>
-															<div class="col-sm-5 <?PHP if($q['answer']=='b') echo ' correct'; ?>">
-																B) <?= $q['option_b']; ?>
-															</div>
-															<div class="col-sm-5 <?PHP if($q['answer']=='c') echo ' correct'; ?>">
-																C) <?= $q['option_c']; ?>
-															</div>
-															<div class="col-sm-5 <?PHP if($q['answer']=='d') echo ' correct'; ?>">
-																D) <?= $q['option_d']; ?>
-															</div>
-														</div>
-														</br>
-													<?PHP endforeach; ?>
-													
+													</div>
 												</div>
-											</section>
+											</div>
 										</div>
+										
 											<?PHP if( $status=='Ready'): ?>
 											<div class="row col-sm-offset-5" >
 												<a class="btn btn-success btn-lg" href="<?= site_url(); ?>/quiz/edit_question/<?= $id; ?>" title="Edit Questions">Edit Questions</a>
@@ -275,6 +312,53 @@
 			</div>
 			
 		</div>
+		<?PHP 
+			
+			$attended_students=$this->model_quiz->attended_students($id);
+			if($attended_students!=FALSE):
+		?>
+		
+		<div class="row">
+                  <div class="col-lg-12">
+                      <section class="panel">
+                          <header class="panel-heading">
+                              Test Attended Student Details
+                          </header>
+                          
+                          <table class="table table-striped table-advance table-hover">
+                           <tbody>
+                              <tr>
+                                 <th><i class="fa fa-slack" aria-hidden="true"></i> S.NO</th>
+                                 <th><i class="fa fa-user" aria-hidden="true"></i> Full Name</th>
+                                 <th><i class="fa fa-calendar" aria-hidden="true"></i> Attended On</th>
+								 <th><i class="fa fa-star" aria-hidden="true"></i> Marks </th>
+								</tr>
+							  <?PHP $sno=0; foreach($attended_students as $std): ?>
+                              <tr>
+                                 <td><?= $sno=$sno+1; ?></td>
+                                 
+									<?PHP
+										$mid=$std['mail_id'];
+										$student=$this->model_quiz->get_student_details($mid);
+										$snam=$student['first_name'] . '_' . $student['last_name'];
+										$snam=humanize($snam);
+										$std_id=$this->login_database->encryptor('encrypt',$mid);
+										
+									?>
+								 <td><?= anchor("user_home/view_student_profile/$std_id",$snam); ?></td>
+                                 <td><?= $this->model_quiz->cdate($std['start_date']); ?></td>
+                                 <td><?= $std['marks']; ?></td>
+                                 
+                              </tr>
+                               <?PHP endforeach; ?>                       
+                           </tbody>
+                        </table>
+                      </section>
+                  </div>
+              </div>
+		<?PHP else: ?>
+		 
+		<?PHP endif; ?>
 	</section>
 </section>
       <!--main content end-->

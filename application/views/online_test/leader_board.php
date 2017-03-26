@@ -6,21 +6,40 @@
 		$mail_id=$this->encryption->decrypt($aa);
 		$this->session->set_tempdata('mail_id',$aa,TIMEOUT);
 	}
+	else if($this->session->tempdata('email_id'))
+	{
+		$aa=$this->session->tempdata('email_id');
+		$mail_id=$this->encryption->decrypt($aa);
+		$this->session->set_tempdata('email_id',$aa,TIMEOUT);
+	}
 	else
 	{
 		redirect('user_home/error');
 	}
 	$user=$this->login_database->read_user_info($mail_id);
+	if(!isset($user))
+	{
+		$this->session->set_flashdata("message","Invalid User");
+		redirect('user_home/error');
+	}
 	$this->load->helper('inflector');
 	$name=$user['first_name'] . '_' . $user['last_name'];
 	$name=humanize($name);
-	$data=array('title'=>'Quiz');
+	$data=array('title'=>'Leader Board');
 	$this->load->view('template/header',$data);
 	$data=array('name'=>$name);
-	$this->load->view('template/user_menu',$data);
+	if($user['active']==10)
+	{
+		$this->load->view('template/admin_menu',$data);
+	}
+	else
+	{
+		$this->load->view('template/user_menu',$data);
+	}	
 	$table=$this->model_quiz->get_user_table($mail_id);
 	$category= $this->model_home->category();
 	$my_overall_rank=$this->model_quiz->get_overall_rank($mail_id);
+	$user_type=($user['active']==10)?'admin':'student';
 ?> 
 <!--main Title bar-->
 <section id="main-content">
@@ -94,7 +113,8 @@
 								
 							</div>
 							<div class="row rank-display">
-							<?PHP if($my_overall_rank['rank']>0): ?>
+							<?PHP if($user_type=='student'): ?>
+								<?PHP if($my_overall_rank['rank']>0): ?>
 									<div class=" col-lg-12">
 										Your Overall Rank is <?= $my_overall_rank['rank']; ?>
 									</div>
@@ -103,6 +123,7 @@
 										You are not attended any test.
 									</div>
 								<?PHP endif; ?>
+							<?PHP endif; ?>
 						</div>
 						</div>
 						
@@ -154,17 +175,19 @@
 										
 									</tbody>
 								</table>
-								<?PHP if($my_cat_rank>0): ?>
-									<div class="rank-display">
-										Your Rank is <?= $my_cat_rank; ?>
-									</div>
-								<?PHP else: ?>
-									<div class="rank-display">
-										You are not attended any test in this category.
-									</div>
-								<?PHP endif; ?>
-								<?PHP else: ?>
-									<div class="rank-display">No content Available</div>
+								<?PHP if($user_type=='student'): ?>
+									<?PHP if($my_cat_rank>0): ?>
+										<div class="rank-display">
+											Your Rank is <?= $my_cat_rank; ?>
+										</div>
+									<?PHP else: ?>
+										<div class="rank-display">
+											You are not attended any test in this category.
+										</div>
+									<?PHP endif; ?>
+									<?PHP else: ?>
+										<div class="rank-display">No content Available</div>
+									<?PHP endif; ?>
 								<?PHP endif; ?>
 								
 							</div>

@@ -29,9 +29,32 @@
 	{
 		redirect('user_home/error');
 	}
-	//$user_status=$this->model_quiz->get_user_test_status($id,$mail_id);
+	
+	$parr=$this->model_home->marks($mail_id);
+	if(!isset($parr))
+	{
+		$parr[]=0;
+	}
+	$lbls=array();
+	
+	$category= $this->model_home->category();
+	foreach($category as $cat)
+	{
+		$c=$cat['category_id'];
+		$lbls[]=$cat['title'];
+		//$array_val[$c]=$this->model_progress->cat_prog($mail_id,$c);
+	}
+	$darr=$this->model_home->dates($mail_id,$lbls);
+	if(!isset($darr))
+	{
+		$darr[]="";
+	}
 	
 ?> 
+<script src="<?PHP echo base_url(); ?>dist/Chart.bundle.js"></script>
+    <script src="<?PHP echo base_url(); ?>utils.js"></script>
+		<!--external css-->
+	<link href="<?PHP echo base_url(); ?>css/chart-style.css" rel="stylesheet">
 <!--main Title bar-->
 <section id="main-content">
 	<section class="wrapper">
@@ -161,11 +184,14 @@
 								<i class="fa fa-desktop" aria-hidden="true"></i> Overall Progress
 							</div>
 							<div class="col-lg-offset-2 col-md-1 viewall">
-								<a class="btn btn-default btn-md" href="<?= site_url(); ?>/online_test/">View All</a>
+								<a class="btn btn-default btn-md" href="<?= site_url(); ?>/progress/">View All</a>
 							</div>
 						</div>
 						<div class="row ">
-							Progress Content
+							
+							<div class="col-lg-offset-1 col-xs-10" id="canvas-holder" style="width: 88%; float: left; ">
+								<canvas id="chart"/>
+							</div>
 						</div>
 					
 					</div>
@@ -173,5 +199,118 @@
 		</div>
 	</section>
 </section>
+
+<script>
+             	
+		window.onload = function() {
+		
+        var lineChartData = {
+			labels: <?php echo json_encode($darr); ?>,
+			datasets: [{
+				label: "Overall Progress",
+				borderColor: window.chartColors.red,
+				pointBackgroundColor: window.chartColors.red,
+				fill: false,
+				data: <?php echo json_encode($parr); ?> 
+			}]
+		};
+			//line
+			var chartEl = document.getElementById("chart");
+			window.myLine = new Chart(chartEl, {
+				type: 'line',
+				data: lineChartData,
+				options: {
+					title:{
+						display:true,
+						text:'Progress chart'
+					},
+					tooltips: {
+						enabled: true,
+						mode: 'index',
+						position: 'nearest',
+						custom: customTooltips
+					}
+				}
+			});
+			
+
+	};
+	
+		
+	
+	//line chart
+		Chart.defaults.global.pointHitDetectionRadius = 1;
+
+		var customTooltips = function(tooltip) {
+			// Tooltip Element
+			var tooltipEl = document.getElementById('chartjs-tooltip');
+
+			if (!tooltipEl) {
+				tooltipEl = document.createElement('div');
+				tooltipEl.id = 'chartjs-tooltip';
+				tooltipEl.innerHTML = "<table></table>"
+				document.body.appendChild(tooltipEl);
+			}
+
+			// Hide if no tooltip
+			if (tooltip.opacity === 0) {
+				tooltipEl.style.opacity = 0;
+				return;
+			}
+
+			// Set caret Position
+			tooltipEl.classList.remove('above', 'below', 'no-transform');
+			if (tooltip.yAlign) {
+				tooltipEl.classList.add(tooltip.yAlign);
+			} else {
+				tooltipEl.classList.add('no-transform');
+			}
+
+			function getBody(bodyItem) {
+				return bodyItem.lines;
+			}
+
+			// Set Text
+			/*if (tooltip.body) {
+				var titleLines = tooltip.title || [];
+				var bodyLines = tooltip.body.map(getBody);
+
+				var innerHtml = '<thead>';
+
+				titleLines.forEach(function(title) {
+					innerHtml += '<tr><th>' + title + '</th></tr>';
+				});
+				innerHtml += '</thead><tbody>';
+
+				bodyLines.forEach(function(body, i) {
+					
+					var colors = tooltip.labelColors[i];
+					var style = 'background:' + colors.backgroundColor;
+					style += '; border-color:' + colors.borderColor;
+					style += '; border-width: 2px'; 
+					var span = '<span class="chartjs-tooltip-key" style="' + style + '"></span>';
+					innerHtml += '<tr><td>' + span +  body + '</td></tr>';
+				});
+				innerHtml += '</tbody>';
+
+				var tableRoot = tooltipEl.querySelector('table');
+				tableRoot.innerHTML = innerHtml;
+			}*/
+
+			var position = this._chart.canvas.getBoundingClientRect();
+
+			// Display, position, and set styles for font
+			tooltipEl.style.opacity = 1;
+			tooltipEl.style.left = position.left + tooltip.caretX + 'px';
+			tooltipEl.style.top = position.top + tooltip.caretY + 'px';
+			tooltipEl.style.fontFamily = tooltip._fontFamily;
+			tooltipEl.style.fontSize = tooltip.fontSize;
+			tooltipEl.style.fontStyle = tooltip._fontStyle;
+			tooltipEl.style.padding = tooltip.yPadding + 'px ' + tooltip.xPadding + 'px';
+		};
+
+
+
+</script>
       <!--main content end-->
 <?PHP $this->load->view('template/footer'); ?>

@@ -40,6 +40,9 @@
 									<a data-toggle="tab" href="#active">Active</a>
 								</li>
 								<li class="">
+									<a data-toggle="tab" href="#pending">Pending</a>
+								</li>
+								<li class="">
 									<a data-toggle="tab" href="#incomplete">In-Complete</a>
 								</li>
 								<li class="">
@@ -49,7 +52,7 @@
 									<a data-toggle="tab" href="#closed">Closed</a>
 								</li>
 								<li class="">
-									<a data-toggle="tab" href="#create">Create Test</a>
+									<a href="<?= site_url(); ?>/online_test/create">Create Test</a>
 								</li>
 							</ul>
 						</header>
@@ -62,7 +65,7 @@
 									);
 									$this->table->set_template($template);
 									$this->table->set_caption('All Quiz List');
-									$this->table->set_heading('Title', 'Category', 'Start Date', 'End Date','Actions');
+									$this->table->set_heading('Title', 'Category','Posted by', 'Start Date', 'End Date','Actions');
 									echo $this->table->generate($table['All']);
 								?>
 								</div>
@@ -73,8 +76,19 @@
 									);
 									$this->table->set_template($template);
 									$this->table->set_caption('Active Quiz List');
-									$this->table->set_heading('Title', 'Category', 'Start Date', 'End Date','Actions');
+									$this->table->set_heading('Title', 'Category','Posted by', 'Start Date', 'End Date','Actions');
 									echo $this->table->generate($table['Active']);
+									?>
+								</div>
+								<div id="pending" class="tab-pane">
+									<?PHP
+									$template = array(
+									'table_open' => '<table class="table table-striped table-advance table-hover">'
+									);
+									$this->table->set_template($template);
+									$this->table->set_caption('Pending Quiz List');
+									$this->table->set_heading('Title', 'Category','Posted by', 'Start Date', 'End Date','Actions');
+									echo $this->table->generate($table['Pending']);
 									?>
 								</div>
 								<div id="incomplete" class="tab-pane">
@@ -84,7 +98,7 @@
 									);
 									$this->table->set_template($template);
 									$this->table->set_caption('In-Complete Quiz List');
-									$this->table->set_heading('Title', 'Category', 'Start Date', 'End Date','Actions');
+									$this->table->set_heading('Title', 'Category', 'Posted by','Start Date', 'End Date','Actions');
 									echo $this->table->generate($table['Incomplete']);
 									?>
 								</div>
@@ -95,7 +109,7 @@
 									);
 									$this->table->set_template($template);
 									$this->table->set_caption('Finished Quiz List');
-									$this->table->set_heading('Title', 'Category', 'Start Date', 'End Date','Actions');
+									$this->table->set_heading('Title', 'Category', 'Posted by','Start Date', 'End Date','Actions');
 									echo $this->table->generate($table['Finished']);
 									?>
 								</div>
@@ -106,7 +120,7 @@
 									);
 									$this->table->set_template($template);
 									$this->table->set_caption('Closed Quiz List');
-									$this->table->set_heading('Title', 'Category', 'Start Date', 'End Date','Actions');
+									$this->table->set_heading('Title', 'Category','Posted by', 'Start Date', 'End Date','Actions');
 									echo $this->table->generate($table['Closed']);
 									?>
 								</div>

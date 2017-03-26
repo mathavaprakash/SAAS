@@ -63,34 +63,9 @@
 						<div class="col-lg-4 col-sm-4 follow-info"><p></p>
 							<h4><?= $name; ?></h4>
 							<p><?= $user['mail_id']; ?></p>
-							<h6>
-								<span><i class="icon_calendar"></i>Last Login : 25.12.2016 11:05 AM </span>
-							</h6>
+							
 						</div>
-						<div class="col-lg-2 col-sm-6 follow-info weather-category">
-							<ul>
-								<li class="active">
-									<i class="fa fa-comments fa-2x"> </i><br>
-									<p>your overall Rank </p><h3>56 / 5046</h3>
-								</li>
-							</ul>
-						</div>
-						<div class="col-lg-2 col-sm-6 follow-info weather-category">
-							<ul>
-								<li class="active">
-								<i class="fa fa-bell fa-2x"> </i><br>
-								<p>your Total points </p><h3>2340 </h3>
-								</li>
-							</ul>
-						</div>
-						<div class="col-lg-2 col-sm-6 follow-info weather-category">
-							<ul>
-								<li class="active">
-								<i class="fa fa-tachometer fa-2x"> </i><br>
-								<p>Performance </p><h3>Good </h3>
-								</li>
-							</ul>
-						</div>
+						
 					</div>
 				</div>
 			</div>
@@ -99,7 +74,7 @@
 		<div class="row">
 			<div class="col-lg-12">
 				<section class="panel">
-					<header class="panel-heading tab-bg-info">
+					<header class="panel-heading tab-bg-info" style="background:#00b36b; border:none;">
 						<ul class="nav nav-tabs">
 							
 							<li>
@@ -122,7 +97,7 @@
 							</li>
 						</ul>
 					</header>
-					<div class="panel-body">
+					<div class="panel-body" style="color:black;  border:none;">
 						<div class="tab-content">
 							
 							<!-- profile -->
@@ -132,24 +107,65 @@
 									<div class="panel-body bio-graph-info">
 										<h1>Bio Graph</h1>
 										<div class="row">
-											<div class="bio-row">
-												<p><span>First Name </span>: <?= $user['first_name']; ?> </p>
+											<div class="col-md-offset-2 col-md-5">
+												<div class="col-xs-12">
+													<div class="col-xs-4 pro-label">
+														First Name :
+													</div>
+													<div class="col-xs-8 pro-content">
+														<?= $user['first_name']; ?>
+													</div>
+												</div>
 											</div>
-											<div class="bio-row">
-												<p><span>Last Name </span>: <?= $user['last_name']; ?></p>
-											</div>                                              
-											<div class="bio-row">
-												<p><span>Birthday</span>: <?= $user['dob']; ?></p>
+											<div class=" col-md-5">
+												<div class="col-xs-12">
+													<div class="col-xs-4  pro-label">
+														Last Name :
+													</div>
+													<div class="col-xs-8 pro-content">
+														<?= $user['last_name']; ?>
+													</div>
+												</div>
 											</div>
-											<div class="bio-row">
-												<p><span>Gender </span>: <?= $user['gender']; ?></p>
+											<div class="col-md-offset-2 col-md-5">
+												<div class="col-xs-12">
+													<div class="col-xs-4  pro-label">
+														Birthday :
+													</div>
+													<div class="col-xs-8 pro-content">
+														<?= $user['dob']; ?>
+													</div>
+												</div>
 											</div>
-											
-											<div class="bio-row">
-												<p><span>Email </span>:<?= $user['mail_id']; ?></p>
+											<div class=" col-md-5">
+												<div class="col-xs-12">
+													<div class="col-xs-4  pro-label">
+														Gender :
+													</div>
+													<div class="col-xs-8 pro-content">
+														<?= $user['gender']; ?>
+													</div>
+												</div>
 											</div>
-											<div class="bio-row">
-												<p><span>Mobile </span>: <?= $user['phone']; ?></p>
+											<div class="col-md-offset-2 col-md-5">
+												<div class="col-xs-12">
+													<div class="col-xs-4  pro-label">
+														Email  :
+													</div>
+													<div class="col-xs-8 pro-content">
+														<?= $user['mail_id']; ?>
+													</div>
+												</div>
+											</div>
+											<div class=" col-md-5">
+												<div class="col-xs-12">
+													<div class="col-xs-4  pro-label">
+														Mobile :
+													</div>
+													<div class="col-xs-8 pro-content">
+														<?= $user['phone']; ?>
+													</div>
+												</div>
 											</div>
 											
 										</div>
@@ -162,29 +178,62 @@
 								<section class="panel">                                          
 									<div class="panel-body bio-graph-info">
 										<h1> Profile Info</h1>
-										<form class="form-horizontal" role="form">                                                  
+										<?PHP 
+											$data=array(
+												'class'=>'form-horizontal'
+											);
+											echo form_open('user_home/update_profile1',$data);
+										
+										?>
+										
 											<div class="form-group">
-												<label class="col-lg-2 control-label">First Name</label>
-												<div class="col-lg-6">
-													<input type="text" class="form-control" id="f-name" placeholder=" ">
+												<label for="inputEmail1" class="col-lg-4 control-label">First Name</label>
+												<div class="col-lg-4">
+													<input type="text" name="first_name"class="form-control" id="inputEmail4" placeholder="First Name" value="<?= $user['first_name']; ?>" required>
 												</div>
 											</div>
 											<div class="form-group">
-												<label class="col-lg-2 control-label">Last Name</label>
-												<div class="col-lg-6">
-													<input type="text" class="form-control" id="l-name" placeholder=" ">
+												<label for="inputPassword1" class="col-lg-4 control-label">Last Name</label>
+												<div class="col-lg-4">
+													<input type="text" name="last_name" class="form-control" id="inputPassword4" placeholder="Last Name" value="<?= $user['last_name']; ?>" required >
 												</div>
 											</div>
-											<div class="form-group">
-												<label class="col-lg-2 control-label">About Me</label>
-												<div class="col-lg-10">
-													<textarea name="" id="" class="form-control" cols="30" rows="5"></textarea>
+										<!--	<div class="form-group">
+												<label for="inputPassword1" class="col-lg-4 control-label">Gender</label>
+												<div class="col-lg-4">
+											<div class="btn-row" >
+												<div class="btn-group " data-toggle="buttons">
+													<label class="btn btn-default active"><i class="fa fa-mars fa-lg" aria-hidden="true"></i>
+														<input type="radio" name="gender"  value="Male" <?PHP if($user['gender']=='Male'): ?>  <?PHP endif; ?> >  Male
+													</label>
+													<label class="btn btn-default"><span><i class="fa fa-venus fa-lg" aria-hidden="true"></i></span>
+														<input type="radio" name="gender" value="Female" <?PHP if($user['gender']=='Female'): ?> checked <?PHP endif; ?>> &nbsp;  Female
+													</label>
+													<label class="btn btn-default"><i class="fa fa-transgender fa-lg" aria-hidden="true"></i>
+														<input type="radio" name="gender" value="Transgender" <?PHP if($user['gender']=='Transgender'): ?> checked <?PHP endif; ?>>  Transgender
+													</label>
 												</div>
 											</div>
+											</div>
+											</div>
 											<div class="form-group">
-												<div class="col-lg-offset-2 col-lg-10">
-													<button type="submit" class="btn btn-primary">Save</button>
-													<button type="button" class="btn btn-danger">Cancel</button>
+												<label for="inputPassword1" class="col-lg-4 control-label">Date Of Birth</label>
+												<div class="col-lg-4">
+													<input type="date" name="dob" class="form-control" id="inputPassword4" placeholder="DOB" value="<?= $user['dob']; ?>" required >
+												</div>
+											</div> -->
+											<div class="form-group">
+												<label for="inputPassword1" class="col-lg-4 control-label">Phone  Number</label>
+												<div class="col-lg-4">
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-mobile" aria-hidden="true"></i></span>
+												<input type="number" name="phone" class="form-control" placeholder="phone Number" value="<?= $user['phone']; ?>" required>
+											</div>
+											</div>
+											</div>
+											<div class="form-group">
+												<div class="col-lg-offset-4 col-lg-6">
+													<button type="submit" class="btn btn-info">Update Profile</button>
 												</div>
 											</div>
 										</form>
@@ -196,24 +245,30 @@
 								<section class="panel">                                          
 									<div class="panel-body bio-graph-info">
 										<h1> Change password</h1>
-										<form class=" form-horizontal " method="post" action="http://localhost/saas/index.php/admin_home/change_password">	
-										
+										<?PHP
+											$cls=array(
+												'class'=>" form-horizontal "
+											);
+											echo form_open('admin_home/change_password',$cls);
+										?>
+										<!--<form class=" form-horizontal " method="post" action="http://localhost/saas/index.php/user_home/change_password">	
+										-->
 											<div class="form-group">
 												<label for="inputEmail1" class="col-lg-4 control-label">Enter Old Password</label>
 												<div class="col-lg-4">
-													<input type="password" name="oldpwd"class="form-control" id="inputEmail4" placeholder="Email">
+													<input type="password" name="oldpwd"class="form-control" id="inputEmail4" placeholder="Old Password">
 												</div>
 											</div>
 											<div class="form-group">
 												<label for="inputPassword1" class="col-lg-4 control-label">New Password</label>
 												<div class="col-lg-4">
-													<input type="password" name="newpwd" class="form-control" id="inputPassword4" placeholder="Password">
+													<input type="password" name="newpwd" class="form-control" id="inputPassword4" placeholder="New Password">
 												</div>
 											</div>
 											<div class="form-group">
 												<label for="inputPassword1" class="col-lg-4 control-label">Conform Password</label>
 												<div class="col-lg-4">
-													<input type="password" name="conpwd" class="form-control" id="inputPassword4" placeholder="Password">
+													<input type="password" name="conpwd" class="form-control" id="inputPassword4" placeholder="Conform Password">
 												</div>
 											</div>
 											

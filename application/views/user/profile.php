@@ -220,10 +220,9 @@
 											$data=array(
 												'class'=>'form-horizontal'
 											);
-											//echo form_open('user_home/update_profile',$data);
+											echo form_open('user_home/update_profile',$data);
 										
 										?>
-										<form class=" form-horizontal " method="post" action="http://localhost/saas/index.php/user_home/update_profile">	
 										
 											<div class="form-group">
 												<label for="inputEmail1" class="col-lg-4 control-label">First Name</label>
@@ -290,8 +289,6 @@
 											);
 											echo form_open('user_home/change_password',$cls);
 										?>
-										<!--<form class=" form-horizontal " method="post" action="http://localhost/saas/index.php/user_home/change_password">	
-										-->
 											<div class="form-group">
 												<label for="inputEmail1" class="col-lg-4 control-label">Enter Old Password</label>
 												<div class="col-lg-4">

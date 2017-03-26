@@ -46,6 +46,52 @@ class Model_Quiz extends CI_Model
 			return FALSE;
 		}
 	}
+	public function attended_students($id)
+	{
+		$sql=$this->db->query("Select * from test where test_id=$id ORDER BY `ticket_id` DESC");
+		$row=$sql->result_array();
+		
+		if(isset($row))
+		{
+			return $row;
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+	public function get_temp_test_id($time_stamp)
+	{
+		$sql=$this->db->query("Select * from online_test where create_time=$time_stamp");
+		$row=$sql->row_array();
+		
+		if(isset($row))
+		{
+			return $row;
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+	public function my_test($id)
+	{
+		$id=$this->security->xss_clean($id);
+		$condition="mail_id="  . $this->db->escape($id) . " ORDER BY `test_id` DESC";
+		$this->db->select('*');
+		$this->db->from('online_test');
+		$this->db->where($condition);
+		$query=$this->db->get();
+		if($query->num_rows()>0)
+		{
+			return $query->result_array();
+		}
+		else
+		{
+			return FALSE;
+		}
+		
+	}
 	public function get_table()
 	{
 		$sql=$this->db->query("Select * from online_test ORDER BY `end_date` DESC");
@@ -54,6 +100,7 @@ class Model_Quiz extends CI_Model
 		$array=array();
 		$table_all=array();
 		$table_active=array();
+		$table_pending=array();
 		$table_finish=array();
 		$table_close=array();
 		
@@ -66,12 +113,13 @@ class Model_Quiz extends CI_Model
 			$test_id=$row['test_id'];
 			$url= site_url() . '/quiz/detail_view/' . $test_id;
 			$btn='<div class="btn-group">
-					<a class="btn btn-primary" href="' . $url . '"><i class="fa fa-asterisk" aria-hidden="true"></i></a>
+					<a class="btn btn-primary" href="' . $url . '"><i class="fa fa-cogs fa-lg" aria-hidden="true"></i></a>
 					</div>';
 			$array=array(
 				//'sno'=>$sno,
 				'title'=>$row['title'],
 				'category'=>$category,
+				'mail_id'=>$row['mail_id'],
 				'start_date'=>$this->cdate($row['start_date']),
 				'end_date'=>$this->cdate($row['end_date']),
 				'action'=>$btn
@@ -80,6 +128,10 @@ class Model_Quiz extends CI_Model
 			if($status=='Active')
 			{
 				$table_active[$sno]=$array;
+			}		
+			elseif($status=='Pending')
+			{
+				$table_pending[$sno]=$array;
 			}		
 			elseif($status=='Finished')
 			{
@@ -97,6 +149,7 @@ class Model_Quiz extends CI_Model
 		}
 		$new_array=array(
 			'Active'=>$table_active,			
+			'Pending'=>$table_pending,			
 			'Finished'=>$table_finish,
 			'Closed'=>$table_close,
 			'All'=>$table_all,
@@ -125,7 +178,7 @@ class Model_Quiz extends CI_Model
 			$test_status=$this->get_test_status($test_id);
 			$url= site_url() . '/online_test/detail_view/' . $test_id;
 			$btn='<div class="btn-group">
-					<a class="btn btn-primary" href="' . $url . '"><i class="fa fa-info-circle fa-lg" aria-hidden="true"></i></a>
+					<a class="btn btn-primary" href="' . $url . '"><i class="fa fa-cogs fa-lg" aria-hidden="true"></i></a>
 					</div>';
 			$array=array(
 				//'sno'=>$sno,
@@ -213,6 +266,10 @@ class Model_Quiz extends CI_Model
 			elseif($active==3)		
 			{
 				$status='Closed';
+			}
+			elseif($active==10)		
+			{
+				$status='Pending';
 			}
 			else
 			{
@@ -398,8 +455,13 @@ class Model_Quiz extends CI_Model
 	}
 	public function validate_question($test_id)
 	{
-		$sql=$this->db->query("Select * from questions where test_id=$test_id");
-		$ques_count=$sql->num_rows();	
+		$test_id=$this->security->xss_clean($test_id);
+		$condition="test_id="  . $this->db->escape($test_id) . "";
+		$this->db->select('*');
+		$this->db->from('questions');
+		$this->db->where($condition);
+		$query=$this->db->get();
+		$ques_count=$query->num_rows();	
 		$test=$this->get_test_details($test_id);				
 		if($ques_count==$test['no_of_questions'])
 		{
@@ -749,6 +811,43 @@ class Model_Quiz extends CI_Model
 			}
 			return $my_rank;
 		
+		
+	}
+	public function get_marks($test_id,$mail_id)
+	{
+		$sql=$this->db->query("SELECT * FROM `test` where `test_id`=$test_id and status=2 ORDER BY `test`.`marks` DESC");
+		$rank_list = $sql->result_array();
+		$num=$sql->num_rows();
+		$marks=array();
+		$c=0;
+		//$marks=[1,20];
+		if(isset($rank_list))
+		{
+			$m=0;
+			$fm=0;
+			foreach($rank_list as $rank)
+			{
+				$c=$c+1;
+				if($rank['mail_id']==$mail_id)
+				{
+					$m=$rank['marks'];
+				}
+				if($c==1) $fm=$rank['marks'];
+			}
+			$marks=array(
+				'my'=>$m,
+				'top'=>$fm
+			);
+			return $marks;
+		}
+		else
+		{
+			$marks=array(
+				'my'=>$m,
+				'top'=>$fm
+			);
+			return $marks;
+		}
 		
 	}
 }
